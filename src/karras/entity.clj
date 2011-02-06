@@ -19,8 +19,8 @@ Example:
   (:require [karras.collection :as c])
   (:use karras.sugar
         [clojure.contrib.def :only [defnk defalias defvar]]
-        [clojure.contrib.str-utils2 :only [lower-case]]
-        inflections))
+        [clojure.string :only [lower-case]]
+        inflections.core))
 
 (defrecord EntitySpec
   [record-class
@@ -35,7 +35,7 @@ Example:
   [type]
   (get @entity-specs type))
 
-(defn entity-spec-get
+(defn  ^:dynamic entity-spec-get
   "Lookup the EntitySpec value for given key of the given type."
   [type key & [default]]
   (get (entity-spec type) key default))
@@ -60,7 +60,7 @@ Example:
 (defn- assoc-meta-cache [v]
   (with-meta v (merge {:cache (atom nil)} (meta v))))
 
-(declare make)
+(def ^:dynamic make)
 (defmulti convert
   "Multimethod used to convert a entity.
    Takes in a field-spec and a val and returns the conver
@@ -138,7 +138,7 @@ Example:
     entity-or-type
     (class entity-or-type)))
 
-(defn field-spec-of
+(defn ^:dynamic  field-spec-of
   "Given a type and one or more keys,
    returns the  field spec for the last key."
   [type & keys]
@@ -176,26 +176,26 @@ Example:
                  current-value (get-in specs path)]
              (assoc-in specs path (apply f current-value args))))))
 
-(defn collection-for
+(defn  ^:dynamic collection-for
   "Returns the DBCollection for the supplied entity instance or type."
   [entity-or-type]
   (let [type (get-type entity-or-type)]
     (c/collection (entity-spec-get type :collection-name))))
 
-(defn ensure-type
+(defn ^:dynamic  ensure-type
   "Force an entity to be of a given type if is not already."
   [type entity]
   (if (= type (class entity))
     entity
     (make type entity)))
 
-(defn by-id [entity]
+(defn  ^:dynamic  by-id [entity]
   (eq :_id (:_id entity)))
 
 (defn collect-ids [entities]
   (map :_id entities))
 
-(defn save
+(defn ^:dynamic save
   "Inserts or updates one or more entities."
   ([entity]
      (->> entity
@@ -210,7 +210,7 @@ Example:
   [type hmap]
   (save (make type hmap)))
 
-(defn update
+(defn ^:dynamic update
   "Updates one or more documents in a collection that match the criteria with the document 
    provided.
      :upsert, performs an insert if the document doesn't have :_id
@@ -226,7 +226,7 @@ Example:
   ([type criteria obj]
      (update type criteria obj :multi)))
 
-(defn delete-all
+(defn ^:dynamic  delete-all
   "Deletes all entitys given an optional where clause."
   ([type]
      (delete-all type {}))
@@ -240,7 +240,7 @@ Example:
   ([entity & entities]
      (doall (map delete (cons entity entities)))))
 
-(defn fetch
+(defn ^:dynamic  fetch
   "Fetch a seq of entities for the given type matching the supplied parameters."
   [type criteria & options]
   (let [collection (collection-for type)]
@@ -252,7 +252,7 @@ Example:
   [type & options]
   (apply fetch type nil options))
 
-(defn fetch-one
+(defn ^:dynamic  fetch-one
   "Fetch the first entity for the given type matching the supplied criteria and options."
   [type criteria & options]
   (first (apply fetch type criteria options)))
@@ -277,7 +277,7 @@ Example:
   [type kw]
   (c/distinct-values (collection-for type) kw))
 
-(defn group
+(defn ^:dynamic  group
   "Fetch a seq of grouped items.
      Example:
        SQL: select a,b,sum(c) csum from coll where active=1 group by a,b
@@ -338,10 +338,10 @@ Example:
   (c/list-indexes (collection-for type)))
 
 
-(defn entity-db-name [entity]
+(defn  ^:dynamic   entity-db-name [entity]
   (c/collection-db-name (collection-for entity)))
 
-(defn entity-collection-name [entity]
+(defn ^:dynamic entity-collection-name [entity]
   (c/collection-name (collection-for entity)))
 
 (defn make-reference
@@ -359,7 +359,7 @@ Example:
     (throw (IllegalArgumentException. "All references must have an :_id.")))
   (assoc entity k (assoc-meta-cache (concat (or (k entity) []) (map make-reference vs)))))
 
-(defn set-references
+(defn  ^:dynamic  set-references
   [entity k vs]
   (apply add-reference (assoc entity k []) k vs))
 
@@ -370,7 +370,7 @@ Example:
     (throw (IllegalArgumentException. "Reference must have an :_id.")))
   (assoc entity k (assoc-meta-cache (make-reference v))))
 
-(defn get-reference
+(defn ^:dynamic get-reference
   "Fetch the entity or entities referrenced by the given key."
   [entity k]
   (let [field-spec (field-spec-of entity k)
@@ -381,7 +381,7 @@ Example:
       (map #(fetch-one target-type (by-id %)) reference)
       (fetch-one target-type (by-id reference)))))
 
-(defn grab
+(defn ^:dynamic grab
   "Analogous to clojure.core/get except that it will follow references.
    References are cached in a :cache atom of the references metadata.
    Takes an optional refresh flag to force it to fetch the reference."
@@ -410,7 +410,7 @@ Example:
           (create type %))
        entities))
 
-(defn relate
+(defn  ^:dynamic  relate
   "Relates an entity to another entity as a reference. Returns the parent with
    the reference associated.  No-op if the target field is not a :reference or 
    :references. If the the key is a list it will add the reference, otherwise it

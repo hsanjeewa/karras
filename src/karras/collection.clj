@@ -49,7 +49,7 @@
   [collection]
   (.getName collection))
 
-(defn collection
+(defn  ^:dynamic  collection
   "Returns a DBCollection."
   ([collection-name]
      (collection *mongo-db* collection-name))
@@ -81,7 +81,7 @@
       (first inserted)
       inserted)))
 
-(defn update
+(defn  ^:dynamic  update
   "Updates one or more documents in a collection that match the criteria with the document 
    provided.
      :upsert, performs an insert if the document doesn't have :_id
@@ -116,7 +116,7 @@
       (make-map include 1)
       (make-map exclude 0))))
 
-(defnk fetch
+(defnk  ^:dynamic  fetch
   "Fetch a seq of documents that match a given criteria.
    Accepts the following keywords:
        :limit, maximum number of documents to return
@@ -167,7 +167,7 @@
   ([#^DBCollection coll criteria]
      (fetch coll criteria :count true)))
 
-(defn fetch-by-id
+(defn  ^:dynamic  fetch-by-id
   "Fetch a document by :_id"
   [#^DBCollection coll id]
   (let [id (if (= ObjectId (class id)) id (ObjectId. id))]
@@ -178,7 +178,7 @@
   [#^DBCollection coll kw]
   (set (.distinct coll (name kw))))
 
-(defn group
+(defn ^:dynamic group
   "Fetch a seq of grouped items.
      Example:
        SQL: select a,b,sum(c) csum from coll where active=1 group by a,b
@@ -219,17 +219,17 @@
     (.throwOnError response)
     (to-clj (.get response "value"))))
 
-(defnk find-and-modify
+(defnk ^:dynamic  find-and-modify
   "See http://www.mongodb.org/display/DOCS/findandmodify+Command"
   [#^DBCollection coll criteria modifier :sort [] :return-new true]
   (find-and-modify* coll criteria modifier false sort return-new))
 
-(defnk find-and-remove
+(defnk  ^:dynamic  find-and-remove
   "See http://www.mongodb.org/display/DOCS/findandmodify+Command"
   [#^DBCollection coll criteria :sort [] :return-new false]
   (find-and-modify* coll criteria nil true sort return-new))
 
-(defnk map-reduce
+(defnk  ^:dynamic  map-reduce
   "See http://www.mongodb.org/display/DOCS/MapReduce"
   [#^DBCollection coll mapfn reducefn :query nil :sort [] :limit nil
    :out nil :keeptemp? false :finalize nil :scope nil  :verbose? true]
@@ -253,7 +253,7 @@
     (assoc clj-response :fetch-fn (fn [& [criteria & options]]
                                     (apply fetch results-coll criteria options)))))
 
-(defn fetch-map-reduce-values
+(defn  ^:dynamic  fetch-map-reduce-values
   "Takes the result of map-reduce and fetches the values. Takes the same options as fetch."
   [map-reduce-result & fetch-options]
   (let [fetch-fn (:fetch-fn map-reduce-result)]
@@ -264,13 +264,13 @@
    If you need to filter the results use:
      (fetch-map-reduce-values (map-reduce ...) ...your fetch options...")
 
-(defn delete
+(defn ^:dynamic  delete
   "Removes documents matching the supplied queries from a collection."
   [#^DBCollection coll & queries]
   (doseq [q queries]
     (.remove coll (to-dbo q))))
 
-(defn ensure-index
+(defn  ^:dynamic  ensure-index
   "Ensure an index exist on a collection."
   [#^DBCollection coll fields]
   (.ensureIndex coll (to-dbo fields)))

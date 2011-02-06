@@ -23,7 +23,7 @@
 (ns karras.core
   (:use [clojure.contrib.def :only [defnk defvar]]
         [clojure.contrib.ns-utils :only [immigrate]])
-  (:import [com.mongodb Mongo DB BasicDBObject BasicDBObjectBuilder]
+  (:import [com.mongodb Mongo DB BasicDBObject BasicDBObjectBuilder WriteConcern]
            [java.util Map Map$Entry List]))
 
 (defn- keyword-str [kw]
@@ -128,19 +128,19 @@
   "From the mongo driver javadocs: 
    Don't check for or report any errors on writes."
   [#^DB db]
-  (.setWriteConcern db com.mongodb.DB$WriteConcern/NONE))
+  (.setWriteConcern db WriteConcern/NONE))
 
 (defn write-concern-normal
   "From the mongo driver javadocs:
    Use the default level of error checking on writes."
   [#^DB db]
-  (.setWriteConcern db com.mongodb.DB$WriteConcern/NORMAL))
+  (.setWriteConcern db WriteConcern/NORMAL))
 
 (defn write-concern-strict
   "From the mongo driver javadocs:
    Send a getLastError command following all writes."
   [#^DB db]
-  (.setWriteConcern db com.mongodb.DB$WriteConcern/STRICT))
+  (.setWriteConcern db WriteConcern/SAFE))
 
 (defn drop-db
   ""

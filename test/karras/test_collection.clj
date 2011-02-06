@@ -8,14 +8,18 @@
 
 (defonce indexing-tests-db (mongo-db :integration-tests))
 (defonce people (collection indexing-tests-db :people))
+(def ^:dynamic  Bill)
+(def ^:dynamic  Sally)
+(def ^:dynamic  Jim)
+(def ^:dynamic  Jane)
 
 (def sample-people [{:first-name "Bill"  :last-name "Smith"   :age 21}
                     {:first-name "Sally" :last-name "Jones"   :age 18}
                     {:first-name "Jim"   :last-name "Johnson" :age 16}
                     {:first-name "Jane"  :last-name "Johnson" :age 16}])
 
-(doseq [p sample-people]
-  (eval `(declare ~(symbol (:first-name p)))))
+;(doseq [p sample-people]
+ ; (eval `(declare ~(symbol (:first-name p)))))
 
 (defn person-by-name [n]
   (fetch-one people {:first-name n}))
