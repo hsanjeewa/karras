@@ -22,6 +22,7 @@
 
 (ns karras.sugar
   (:use [clojure.contrib.def :only [defvar]])
+  (:use [clojure.walk :only [postwalk-replace]])
   (:import [java.util Calendar]))
 
 (defn compound-index
@@ -58,19 +59,22 @@
     >    karras.sugar/gt
     <=   karras.sugar/lte
     >=   karras.sugar/gte
-    or    karras.sugar/or
+    or    karras.sugar/||
     not  karras.sugar/negate
-    like clojureql.predicates/like
     nil?   karras.sugar/is-nil?})
 
-(defn where
+(defn where*
   "Sugar to create a where document. Example:
      (where (ne :j 3) (gt k 10))
    produces:
      {:j {:$ne 3} :k {:$gt 10}}"
-  [clause]
-  (let [klauses# `~(postwalk-replace predicate-symbols clause)])
+  [& clauses]
   (apply merge clauses))
+
+
+(defmacro where [& clause]
+  (let [klause# `~(postwalk-replace predicate-symbols clause)]
+    `(where* ~@klause#)))
 
 (defn through-date [d]
   (.getTime
@@ -101,7 +105,7 @@
 ;; mongo 1.6
 (defn slice         "" [field val]         {field {:$slice val}})
 (defn ||          "or" [& clauses]         {:$or clauses})
-(defn or         "or" [& clauses]         {:$or clauses})
+
 
 (defn sort-by-keys [keys maps]
   (sort (fn [x y]
