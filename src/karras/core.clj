@@ -106,6 +106,12 @@
   ([#^String host port]
      (Mongo. host (int port))))
 
+
+(defn close!
+  "Closes a given mongo db connection"
+  [^Mongo connection]
+  (.close connection))
+
 (defn mongo-db
   "Returns a com.mongo.DB object.
    Defaults to host 127.0.0.1:27017 if a connection is not provided"
