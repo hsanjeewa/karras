@@ -1,8 +1,7 @@
 (defproject org.clojars.hms/karras "0.5.0-SNAPSHOT"
   :description "A clojure entity framework for MongoDB"
-  :dependencies [[org.clojure/clojure "1.3.0-master-SNAPSHOT"]
+  :dependencies [[org.clojure/clojure "1.3.0-alpha4"]
                  [org.clojure.contrib/def "1.3.0-alpha4"]
-		 [org.clojure.contrib/ns-utils "1.3.0-alpha4"]
                  [org.mongodb/mongo-java-driver "2.4"]
 		 [org.clojars.hms/inflections "0.4.2-SNAPSHOT"]]  
   :dev-dependencies [[swank-clojure "1.3.0-SNAPSHOT"]
